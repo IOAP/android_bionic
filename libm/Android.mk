@@ -14,6 +14,8 @@ libm_common_src_files += \
     upstream-freebsd/lib/msun/bsdsrc/b_exp.c \
     upstream-freebsd/lib/msun/bsdsrc/b_log.c \
     upstream-freebsd/lib/msun/bsdsrc/b_tgamma.c \
+    upstream-freebsd/lib/msun/src/catrig.c \
+    upstream-freebsd/lib/msun/src/catrigf.c \
     upstream-freebsd/lib/msun/src/e_acos.c \
     upstream-freebsd/lib/msun/src/e_acosf.c \
     upstream-freebsd/lib/msun/src/e_acosh.c \
@@ -175,40 +177,18 @@ libm_common_src_files += \
 
 libm_common_src_files += fake_long_double.c
 
-  ifeq ($(TARGET_CPU_VARIANT),krait)
-    libm_common_src_files += \
-	  arm/e_pow.S	\
-	  arm/s_cos.S	\
-	  arm/s_sin.S	\
-	  arm/e_sqrtf.S	\
-	  arm/e_sqrt.S
-    libm_common_cflags += -DKRAIT_NEON_OPTIMIZATION -fno-if-conversion
-  else
-      ifeq ($(TARGET_USE_QCOM_BIONIC_OPTIMIZATION),true)
-        libm_common_src_files += \
-	      arm/e_pow.S \
-	      arm/s_cos.S \
-	      arm/s_sin.S \
-	      arm/e_sqrtf.S \
-	      arm/e_sqrt.S
-        libm_common_cflags += -DKRAIT_NEON_OPTIMIZATION -fno-if-conversion
-      else
-        libm_common_src_files += \
-	      upstream-freebsd/lib/msun/src/s_cos.c \
-	      upstream-freebsd/lib/msun/src/s_sin.c \
-	      upstream-freebsd/lib/msun/src/e_sqrtf.c \
-	      upstream-freebsd/lib/msun/src/e_sqrt.c
-      endif
-  endif
-
 # TODO: on Android, "long double" is "double".
 #    upstream-freebsd/lib/msun/src/e_acosl.c \
+#    upstream-freebsd/lib/msun/src/e_acoshl.c \
 #    upstream-freebsd/lib/msun/src/e_asinl.c \
+#    upstream-freebsd/lib/msun/src/e_asinhl.c \
 #    upstream-freebsd/lib/msun/src/e_atan2l.c \
+#    upstream-freebsd/lib/msun/src/e_atanhl.c \
 #    upstream-freebsd/lib/msun/src/e_fmodl.c \
 #    upstream-freebsd/lib/msun/src/e_hypotl.c \
 #    upstream-freebsd/lib/msun/src/e_remainderl.c \
 #    upstream-freebsd/lib/msun/src/e_sqrtl.c \
+#    upstream-freebsd/lib/msun/src/imprecise.c \
 #    upstream-freebsd/lib/msun/src/s_atanl.c \
 #    upstream-freebsd/lib/msun/src/s_cbrtl.c \
 #    upstream-freebsd/lib/msun/src/s_ceill.c \
@@ -245,7 +225,29 @@ libm_common_includes := $(LOCAL_PATH)/upstream-freebsd/lib/msun/src/
 libm_arm_includes := $(LOCAL_PATH)/arm
 libm_arm_src_files := arm/fenv.c
 ifeq ($(TARGET_CPU_VARIANT),krait)
-  libm_arm_cflags += -DKRAIT_NEON_OPTIMIZATION
+  libm_arm_src_files += \
+	arm/e_pow.S	\
+	arm/s_cos.S	\
+	arm/s_sin.S	\
+	arm/e_sqrtf.S	\
+	arm/e_sqrt.S
+  libm_arm_cflags += -DKRAIT_NEON_OPTIMIZATION -fno-if-conversion
+else
+  ifeq ($(TARGET_USE_QCOM_BIONIC_OPTIMIZATION),true)
+    libm_arm_src_files += \
+      arm/e_pow.S \
+      arm/s_cos.S \
+      arm/s_sin.S \
+      arm/e_sqrtf.S \
+      arm/e_sqrt.S
+    libm_arm_cflags += -DKRAIT_NEON_OPTIMIZATION -fno-if-conversion
+  else
+    libm_common_src_files += \
+      upstream-freebsd/lib/msun/src/s_cos.c \
+      upstream-freebsd/lib/msun/src/s_sin.c \
+      upstream-freebsd/lib/msun/src/e_sqrtf.c \
+      upstream-freebsd/lib/msun/src/e_sqrt.c
+    endif
 endif
 
 libm_x86_includes := $(LOCAL_PATH)/i386 $(LOCAL_PATH)/i387

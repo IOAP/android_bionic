@@ -41,10 +41,14 @@ __BEGIN_DECLS
 #endif
 
 /* internal function returning the address of the thread-specific errno */
+__attribute__((const))
 extern volatile int*   __errno(void);
 
 /* a macro expanding to the errno l-value */
 #define  errno   (*__errno())
+
+/* bionic's errno has glibc's __errno_location behavior */
+#define __errno_location errno
 
 __END_DECLS
 
